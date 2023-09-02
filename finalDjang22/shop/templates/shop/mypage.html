@@ -1,0 +1,174 @@
+{% extends 'shop/base.html' %}
+
+{% block main_area %}
+<section class="container mt-3 pl-5 pr-5">
+  <div class="container">
+    <h3>My Page</h3>
+    <hr>
+    <div class="card mb-2">
+      <div class="card-body pb-0">
+        <div class="row">
+          <div class="col-md-3">
+            {% if user_profile.image %}
+              <img class="rounded-circle" src="{{ user_profile.image.url }}" width="250px" alt="프로필 이미지">
+            {% elif user.socialaccount_set.all.0.get_avatar_url %}
+              <img class="rounded-circle" src="{{ user.socialaccount_set.all.0.get_avatar_url }}" width="250px">
+            {% else %}
+              <img class="rounded-circle" src="https://dummyimage.com/250x250/ced4da/6c757d.jpg" alt="프로필 이미지">
+            {% endif %}
+          </div>
+          <div class="col-md-9">
+            <p class="mb-2 mt-4"> 이름 : <span class="ml-2">{{ user.username }}</span></p>
+            {% if user.email %}
+              <p class="mb-2"> 이메일 : <span class="ml-2">{{ user.email }}</span></p>
+            {% else %}
+              <small class="text-muted">등록 되어 있지 않음</small>
+            {% endif %}
+            <p class="mb-2"> 배송 주소 : <span class="ml-2">{{ user_profile.address }}</span></p>
+            <p class="mb-2"> 연락처 : <span class="ml-2">{{ user_profile.phonenum }}</span></p>
+            <a href="{% url 'edit_mypage' %}" class="btn btn-sm btn-outline-secondary float-right mt-2">프로필 수정</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if user.is_authenticated %}
+      {% if user.is_superuser or user.is_staff %}
+        <div class="row">
+          <div class="col-6">
+            <div class="card">
+              <div class="card-body pb-0">
+                <h6><b>등록한 상품 </b>|
+                <a href="/shop/create_post/" style="color: gray; text-decoration: none;"> 상품 등록하기 </a>
+                </h6>
+
+                {% for p in items %}
+                  <hr>
+                  <div class="row mb-2">
+                    <div class="col-md-3 col-sm-4 mr-0">
+                      <img src="{{ p.item_image.url }}" class="card-img-top mt-2 mr-0 w-100" alt="...">
+                    </div>
+                    <div class="p-0 col-md-9 col-sm-8">
+                      <h6 class="card-title mt-3 mb-0">
+                        <b><a href="{{ p.get_absolute_url }}" class="text-dark" style="text-decoration: none;">{{ p.title }}</a></b>
+                        <a href="/shop/update_post/{{ p.pk }}/" class="btn btn-sm btn-outline-secondary float-right">수정</a><br>
+                        <span class="py-3" style="color: gray;">{{ p.price }}원</span><br>
+                        <span class="ml-2 text-muted small py-3">
+                          <a href="{{ p.manufacturer.get_absolute_url }}" class="text-muted">{{ p.manufacturer }}</a> | {{ p.author }}
+                        </span>
+                      </h6>
+                    </div>
+                  </div>
+                {% empty %}
+                  <p>등록한 상품이 없습니다.</p>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="card">
+              <div class="card-body">
+                <h6><b>작성한 후기</b></h6>
+                {% for c in comments %}
+                  <div>
+                    <hr>
+                    <p class="mb-0">
+                      <small>
+                        <b>
+                          <a href="{{ c.post.get_absolute_url }}" class="text-dark" style="text-decoration: none;">{{ c.post }}</a>
+                        </b>
+                        <span class="float-right">
+                          <small style="color:gray;">작성일 : {{ c.modified_at }}</small>
+                        </span>
+                      </small>
+                    </p>
+                    <p>{{ c.content }}</p>
+                  </div>
+                {% empty %}
+                  <p>작성한 후기가 없습니다.</p>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6">
+            <!-- 좋아요한 게시물 목록 -->
+            <div class="card mt-2">
+              <div class="card-body">
+                <h6><b>좋아요한 상품</b></h6>
+                {% for liked_item in likes %}
+                  <hr>
+                  <div class="d-flex align-items-center row mb-2">
+                    <div class="col-md-3 col-sm-4 mr-0">
+                      <img src="{{ liked_item.item_image.url }}" class="card-img-top mt-2 mr-0 w-100" alt="...">
+                    </div>
+                    <div class="p-0 col-md-9 col-sm-8">
+                      <a href="{{ liked_item.get_absolute_url }}" class="text-dark" style="text-decoration: none;"><b>{{ liked_item.title }}</b></a>
+                      <p class="mt-1" style="color: gray;">{{ liked_item.price }}원</p>
+                      <!-- 여기에 필요한 정보를 출력합니다. 예: 가격, 작성자 등 -->
+                    </div>
+                  </div>
+                {% empty %}
+                  <p>좋아요한 상품이 없습니다.</p>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% else %}
+       <div class="row">
+        <div class="col-6">
+          <div class="card mt-2">
+            <div class="card-body">
+                <h6><b>작성한 후기</b></h6>
+                {% for c in comments %}
+                  <div>
+                    <hr>
+                    <p class="mb-0">
+                      <small>
+                        <b>
+                          <a href="{{ c.post.get_absolute_url }}" class="text-dark" style="text-decoration: none;">{{ c.post }}</a>
+                        </b>
+                        <span class="float-right">
+                          <small style="color:gray;">작성일 : {{ c.modified_at }}</small>
+                        </span>
+                      </small>
+                    </p>
+                    <p>{{ c.content }}</p>
+                  </div>
+                {% empty %}
+                  <p>작성한 후기가 없습니다.</p>
+                {% endfor %}
+              </div>
+          </div>
+        </div>
+
+          <div class="col-6">
+            <!-- 좋아요한 게시물 목록 -->
+            <div class="card mt-2">
+              <div class="card-body">
+                <h6><b>좋아요한 상품</b></h6>
+                {% for liked_item in likes %}
+                  <hr>
+                  <div class="d-flex align-items-center row mb-2">
+                    <div class="col-md-3 col-sm-4 mr-0">
+                      <img src="{{ liked_item.item_image.url }}" class="card-img-top mt-2 mr-0 w-100" alt="...">
+                    </div>
+                    <div class="p-0 col-md-9 col-sm-8">
+                      <a href="{{ liked_item.get_absolute_url }}" class="text-dark" style="text-decoration: none;"><b>{{ liked_item.title }}</b></a>
+                      <p class="mt-1" style="color: gray;">{{ liked_item.price }}원</p>
+                      <!-- 여기에 필요한 정보를 출력합니다. 예: 가격, 작성자 등 -->
+                    </div>
+                  </div>
+                {% empty %}
+                  <p>좋아요한 상품이 없습니다.</p>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

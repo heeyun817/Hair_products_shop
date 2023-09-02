@@ -1,0 +1,24 @@
+{% extends 'shop/base.html' %}
+
+{% block main_area %}
+<h1>Edit Profile</h1>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <p class="mb-1"> 이름 : <span class="ml-2">{{ user.username }}</span></p>
+        {% if user.email %}
+          <p class="mb-1"> 이메일 : <span class="ml-2">{{ user.email }}</span></p>
+        {% else %}
+          <small class="text-muted">등록 되어 있지 않음</small>
+        {% endif %}
+    {% if user_profile.image %}
+        <img class="rounded-circle mr-3" src="{{ user_profile.image.url }}" width="250px" alt="프로필 이미지">
+        {% elif user.socialaccount_set.all.0.get_avatar_url %}
+        <img class="rounded-circle mr-3" src="{{ user.socialaccount_set.all.0.get_avatar_url }}" width="250px">
+        {% else %}
+        <img class="rounded-circle mr-3" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" width="250px">
+        {% endif %}
+    {{ form.as_p }}
+    <button type="submit">Save Changes</button>
+</form>
+<a href="{% url 'mypage' pk=user.pk %}">Cancel</a>
+{% endblock %}

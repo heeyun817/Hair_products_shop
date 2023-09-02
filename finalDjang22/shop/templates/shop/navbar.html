@@ -1,0 +1,122 @@
+{% load socialaccount %}
+<!-- Navigation-->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container px-4 px-lg-5">
+                <a class="navbar-brand" href="/"><b>Hair Shop</b></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                        <li class="nav-item"><a class="nav-link" aria-current="page" href="/shop/">Shop</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/about/">About</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Category</a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="/shop/">All Products</a></li>
+                                <li><hr class="dropdown-divider" /></li>
+                                {% for category in categories %}
+                                <li><a class="dropdown-item" href="{{ category.get_absolute_url }}">{{ category }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" id="navbarDrop" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Brand</a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDrop">
+                                {% for manufacturer in manufacturers %}
+                                <li><a class="dropdown-item" href="{{ manufacturer.get_absolute_url }}">{{ manufacturer }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-0">
+                      <li class="nav-item">
+                        <div class="input-group" style="height: 40px;">
+                          <input type="text" class="form-control rounded-pill" placeholder="검색어를 입력해주세요" aria-label="Search" id="search-input" style="height: 100%; width: 500px;">
+                          <button class="btn btn-outline-secondary rounded-pill" type="button" onclick="searchPost()" style="height: 100%; background-color: transparent; border: none;">
+                            <i class="fa-solid fa-magnifying-glass" style="color: black; font-size: 15px;"></i>
+                          </button>
+                        </div>
+                      </li>
+                    </ul>
+                    <ul class="navbar-nav ml-auto">
+          {% if user.is_authenticated %} <!--로그인이 됐다면-->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              {% if user_profile.image %}
+                <img class="rounded-circle mr-3" src="{{ user_profile.image.url }}" width="25px" alt="프로필 이미지">
+              {% elif user.socialaccount_set.all.0.get_avatar_url %}
+                <img class="rounded-circle mr-3" src="{{user.socialaccount_set.all.0.get_avatar_url}}" width="25px">
+              {% else %}
+                <img class="rounded-circle mr-3" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" width="25px">
+              {% endif %}
+              {{user.username}}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                <a class="dropdown-item" href="/shop/{{user.pk}}/mypage/">MyPage</a>
+              <a class="dropdown-item" href="/accounts/logout/">LogOut</a>
+            </div>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-toggle="modal" data-target="#loginModal">LogIn</a> <!--data-target="#loginModal"은 id가 loginModal인거를 열어준다는 뜻-->
+          </li>
+          {% endif %}
+        </ul>
+                </div>
+            </div>
+        </nav>
+
+ <!-- Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel"><i class="fa-solid fa-right-to-bracket"></i> LogIn</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+    <div class="row">
+        <div class="col-6 mb-2">
+            <a role="button" class="btn btn-outline-dark btn-block btn-sm" href="{% provider_login_url 'google' %}">
+                <i class="fab fa-google"></i> Login with Google
+            </a>
+        </div>
+        <div class="col-6 mb-2">
+            <a role="button" class="btn btn-outline-dark btn-block btn-sm" href="/accounts/login/">
+                <i class="far fa-envelope"></i> Login with Email
+            </a>
+        </div>
+        <div class="col-6">
+            <a role="button" class="btn btn-outline-dark btn-block btn-sm" href="/accounts/signup/">
+                <i class="far fa-envelope"></i> SignUp with Email
+            </a>
+        </div>
+    </div>
+</div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+<script>
+          function searchPost(){
+            searchValue = document.getElementById('search-input').value.trim();
+            if( searchValue.length > 1){
+                location.href = "/shop/search/" + searchValue + "/";
+            }
+            else{
+                alert('검색어(' + searchValue + ') 길이가 너무 짧습니다.');
+            }
+          };
+
+          document.getElementById('search-input').addEventListener(
+            'keyup', function(event){
+                if(event.key === 'Enter'){
+                    searchPost();
+                }
+            });
+
+      </script>
